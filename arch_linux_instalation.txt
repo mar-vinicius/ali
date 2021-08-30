@@ -1,0 +1,267 @@
+COMO INSTALAR O ARCH LINUX
+
+-----------------------------------------------------------------------
+1. ATENÇÕES
+	Security boot tem que estar desativado.
+	Faça o pendrive bootável com arch e dê boot na sua máquina, escolha a primeira opção para carregar o sistema operacional pela primeira vez.
+
+Ele irá logar já como usuário root.
+-----------------------------------------------------------------------
+3. Comandos úteis
+	clear : limpar na tela.
+
+-----------------------------------------------------------------------
+2. Defina o layout do teclado para a instalação
+	loadkeys br-abnt2 : irá carregar o padrão br-abnt2, vulgo BR.
+
+-----------------------------------------------------------------------
+4. teste sua conexão com internet : ping www.google.com.br
+
+Caso você esteja com wifi a cabo, pule este passo:
+	wifi-menu > escolha a rede > bote a senha > GG
+	wifi-menu vai abrir uma interface via dialog para fazer a conexão com a internet.
+
+-----------------------------------------------------------------------
+5. particionamento de disco.
+	Primeiro de tudo, saiba se seu computador é BIOS ou UEFI, vocẽ tanto pode ver na bios do sistema quanto usar o comando : ls /sys/firmware/efi/efivars, se retornar o diretório sem NENHUM erro, é EFI, se não, é bios.
+
+	Em primeiro lugar, mande um lsblk para visualizar os discos disponíveis.
+
+	Em segundo lugar, mande o fdisk <caminho do disco que vai ser criado a nova tabela>. Aperte "m" e crie um novo label, no caso de GPT digite "g", caso seja MBR digite "o". Aperte "w" vamos nessa. Foi criado agora a nova tabela DOS ou GPT.
+
+	Agora vamos usar o cfdisk, para usa-lo, especifique o caminho do disco em que deseja particionar o comando fica assim : cfdisk <caminho do disco>. 
+	
+	MODO BIOS:
+		Aperte em NEW e crie uma nova partição, esta tem que ser a root, bote o tamanho dela levando em conta se você quer ou não separar o home e se quer ou não uma swap.
+		Crie uma nova partição, a partição de swap, é recomendável que ela seja do tamanho da sua memória RAM, mude seu tipo para linux swap.
+	
+	MODO EFI:
+		Crie uma nova partição, esta tem que ser a boot, crie do tamanho de 512M e mude seu tipo para EFI boot.
+		Crie a partição root levando em conta se você vai ou não ter /home separado e se vai ou não ter swap.
+		Crie a partição de swap, é recomendável que seja do tamanho de sua memória RAM, mude seu tipo para linux swap.
+
+	Vá em WRITE e aperte ENTER, depois digite YES. Se quiser ter certeza, em cima de cada partição faça o mesmo processo.(eu recomendo)
+	Vá em QUITE e pronto.
+
+	Verifique se foi mesmo feito tudo digitando fdisk -l <caminho do seu disco>.
+
+-----------------------------------------------------------------------
+7. Formatando...
+	MODO BIOS:
+		Formate a sua partição root e sua partição home com o tipo desejado, o padrão do linux é ext4, então o comando fica : mkfs.ext4 <caminho da partição>
+		Formate sua partição swap se tiver optado por fazela com o comando : mkswap <partição swap>
+	
+	MODO EFI:
+		Comece formatando a partição de boot, formate-a em Fat32 usando o seguinte comando : mkfs.fat -F32 <caminho da partição boot>
+		Formate a sua partição root e sua partição home em ext4 com o seguinte comando: mkfs.ext4 <caminho da partição> 
+		Formate a sua partição swap com o comando : mkswap <caminho da partição>
+
+	Para entender cada comando daqui, é fácil, mkfs seria entendido como make file system e mkswap como make swap ou make swap file.
+
+-----------------------------------------------------------------------
+8. Montando partições.
+	Para montar partições, COMECE POR ROOT(/)
+	Para montar a partição root digite o comando : mount <caminho da partição root> /mnt
+	
+	MODO BIOS:
+		crie a pasta /mnt/boot e crie /mnt/home se tiver feito.
+		mkdir /mnt/boot
+		mkdir /mnt/home ( se tiver feito )
+
+		mount <caminho da partição root> /mnt
+		mount <caminho da partição home> /mnt/home ( se tiver feito )
+		swapon <caminho da partição swap>	
+
+	MODO EFI:
+		crie a pasta /mnt/boot/efi e crie a pasta /mnt/home se tiver feito.
+		mkdir /mnt/efi ou então mkdir /mnt/boot
+		mkdir /mnt/home ( se tiver feito )
+
+		mount <caminho da partição root> /mnt
+		mount <caminho da partição boot> /mnt/efi ou /mnt/boot
+		mount <caminho da partição home> /mnt/home ( se tiver feito )
+		swapon <caminho da partição swap>	
+
+-----------------------------------------------------------------------
+9. E vamos puxar os pacotes
+	O utilitário pacstrap vai fazer a instalação de pacotes para a gente, é importante que você mande para o /mnt que é onde nosso root foi montado especificando os pacotes.
+		comando : pacstrap /mnt base base-devel linux linux-firmware
+
+	base: pacote com programas essenciais para o arch linux
+	base-devel: pacotes com programas essenciais para desenvolvedores ou para pessoas que desejam usar aur
+	linux: kernel do linux
+	linux-firmware: arquivos de firmware necessários para o kernel linux, é necessário sua instalação, menos se estiver em vm.
+
+	O tamanho desses pacotes após a instalação é 1.6gb em média.
+	Agora vocẽ pode sair, beber uma água, ir no banheiro e etc, essa parte demora um bocado.
+
+-----------------------------------------------------------------------
+10. FSTAB
+	fstab, no mundo linux, é um arquivo que diz para o bootloader onde estão cada uma das partições e onde estão montadas.
+
+	genfstab -U /mnt >> /mnt/etc/fstab
+
+	-U : de Uuid
+
+	O comando pode ser lido como : gere o uuid de mnt e mande para o /mnt/etc/fstab.
+
+	Caso queira verificar ele, veja com o comando cat : cat /mnt/etc/fstab. Caso tenha alguma discrepãncia, use o nano para edita-lo
+
+-----------------------------------------------------------------------
+11. Mudando de lado.
+	Agora vamos sair da ISO de instalação, que é onde ficamos até agora fazendo todo o processo, e vamos para o sistema que instalamos.
+
+	arch-chroot /mnt é o comando que você irá usar.
+
+-----------------------------------------------------------------------
+12. Algumas instalações básica e setando seu local, seu horário, seu idioma, seu teclado e seu host.
+	Instale neovim ou nano e instale networkmanager : pacman -S neovim nano networkmanager
+
+	Crie um link simbólico, que é muito fácil, da sua região em etc/localtime para definir o fuso horário da máquina.
+		ln -sf /usr/share/zoneinfo/America/<sua cidade> /etc/localtime
+
+	Agora sincronize com o horário do seu PC.
+		hwclock --systohc
+
+	Edite o arquivo /etc/locale.gen com nano e busque o seguinte padrão:
+		pt-BR.UTF-8 UTF-8 e descomente a linha, dê um control+x e digite "y" e dê enter.
+
+	Agora vamos gerar o arquivo que editamos acima com o locale-gen.
+
+	Envie a configuração de idioma para o /etc/locale.conf ou então use o nano para fazer isso e comando com echo é : echo LANG=pt_BR.UTF-8 >> /etc/locale.conf
+
+	Agora envie a configuração de teclado com echo também ou edite o arquivo da seguinte forma : echo KEYMAP=br-abnt2 >> /etc/vconsole.conf
+
+	Edite o arquivo com nano /etc/hostname, e bote o nome que você deseja que o computador tenha na rede, no caso APENAS o nome e sem aspas. control+x > y > enter.
+
+	Edite o arquivo /etc/hosts da seguinte forma:
+		127.0.0.1	localhost
+		::1			localhost
+		127.0.1.1	<hostname>.localdomain <hostname>
+
+-----------------------------------------------------------------------
+13. Passwd e novo usuário.
+	mude a senha do root usando o comando passwd e digitando duas vezes a senha.
+
+	Crie um novo usuário fazendo da seguinte forma : useradd -m -g users -G wheel <nome do usuário> seguido de setar o password para ele passwd <nome do usuário>
+
+-----------------------------------------------------------------------
+14. Instalar pacotes essenciais e algumas modificações.
+	pacman -S dosfstools os-prober mtools network-manager-applet networkmanager wpa_supplicant wireless_tools dialog sudo
+
+	Edite o arquivo /etc/sudoers com nano, vá lá no final do arquivo e adicione:
+	<nome do usuário> ALL=(ALL) ALL
+	control+x > y > enter
+
+-----------------------------------------------------------------------
+15. Grub(aqui não será explicado os comandos, veja a wiki para mais informações)
+	Antes de instalar o grub em si, vamos fazer antes a instalação do microcode, ele é essencial para uma perfomance melhor e uma estabilidade melhor no sistema.
+	Se você utiliza intel use o comando para intel e se usa amd, logicamente, use o comando para amd:
+		intel : pacman -S intel-ucode
+		amd : pacman -S amd-ucode
+
+
+	MODO BIOS
+		pacman -S grub
+		grub-install --target=i386-pc --recheck /dev/sda
+		grub-mkconfig -o /boot/grub/grub.cfg
+
+
+	MODO UEFI
+		pacman -S grub efibootmgr
+		grub-install --target=x86_64-efi --efi-directory=<diretório onde o boot está> --bootloader-id=GRUB
+		grub-mkconfig -o /boot/grub/grub.cfg
+
+-----------------------------------------------------------------------
+16. Reboot e torcendo pra que dê certo.
+	exit > reboot > retire seu pendrive bootável
+
+	caso não dê boot, é meu amigo, sinto muito, volte pra primeira linha deste arquivo e refaça com atenção dobrada, sinto muito você fez algo errado ou esqueceu de algo.
+
+-----------------------------------------------------------------------
+17. E vamos que vamos, mais configurações.
+	faça login como root.
+
+	dê um pacman -Syu para atualizar
+		Deu erro?, manda um ping em algum site pra ver se você tem conexão com a internet.
+
+	Se usar conexão wifi, use o wifi-menu e é muito simples.
+	Se usar conexão cabeada, siga os seguintes passos:
+		systemctl status NetworkManager, aqui ele vai verificar se o serviço está rodando, provavelmente o erro de conexão se deu pois ele não está rodando, está com o active: inactive(dead), para ESSE problema use o comando systemctl start NetworkManager, que vai iniciar este serviço.
+	
+	Verifique com o ping novamente, e se não tiver dado certo, vamos lá, tem como fazer o último suspiro ainda.
+		APENAS SE NÃO TIVER RESOLVIDO, edite com nano o seguinte arquivo referente ao DNS : /etc/resolv.conf e mude o que está antes do ip para 1.1.1.1 ou 8.8.8.8 ou 8.8.4.4.
+
+
+	pacman -S xorg	
+
+	Agora instale o seu hardware de vídeo
+		intel: pacman -S xf86-video-intel libgl mesa
+		AMD : pacman -S mesa xf86-video-amdgpu
+		Virtualbox : pacman -S virtualbox-guest-utils mesa mesa-libgl
+
+	
+	Agora instale sua interface gráfica. 
+		XFCE: pacman -S xfce4 xfce4-goodies xfce4-terminal
+		
+		BSPWM:
+			INSTALAÇÃO:
+				pacman -S bspwm sxhkd alacritty feh rofi dunst mpd firefox flameshot lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings python-pywal calc thunar
+				
+				(necessario fazer instalação de yay para fazer a instalação do polybar, recomendo fazer no pós instalação)
+				yay -S polybar
+
+
+			CONFIGURAÇÃO(faça nos 2 usuários[root e o que você criou]):
+				sudo systemctl enable lightdm
+				mkdir -p .config/{bspwm,sxhkd}
+				install -Dm755 /usr/share/doc/bspwm/examples/bspwmrc .config/bspwm/
+				install -Dm755 /usr/share/doc/bspwm/examples/sxhkd .config/sxhkd/
+				Edite o arquivo .config do sxhkd e troque o terminal para o xfce4-terminal
+				Edite o arquivo .config do bspwm e bote na linha abaixo da linha após o shebang o seguinte :
+					sxhkd &
+					setxkbmap br
+
+	Reinicie o computador e seja feliz com a pós instalação.
+
+-----------------------------------------------------------------------
+18. Seja feliz.
+	Faça o ranking dos melhores mirrors para você:
+		https://wiki.archlinux.org/title/mirrors
+	
+	Habilite o multilib:
+		sudo nvim/nano/vim /etc/pacman.conf
+		Descomente as linhas:
+			[multilib]
+			Include = /etc/pacman.d/mirrorlist
+		Pronto :).
+
+	Instale e ative o firewall
+		sudo pacman -S ufw
+		sudo ufw enable
+
+	Instale pacotes a respeito de áudio.
+		sudo pacman -S pulseaudio pulseaudio-alsa pulseaudio-jack pavucontrol
+	
+	Instale codex e alguns utilitários.
+		sudo pacman -S alsa-utils alsa-plugins flac wavpack zip unzip unrar p7zip p7zip-plugins ffmpeg mesa-demos tar
+	
+	Instalar gstreamer.
+		sudo pacman -S gst-libav gst-plugin-gtk gst-plugin-pipewire gst-plugins-bad gst-plugins-bad-libs gst-plugins-base gst-plugins-base-libs gst-plugins-good gst-plugins-ugly gstreamer gstreamer-vaapi
+	
+	Pacotes necessários para a aceleração de vídeo.
+		sudo pacman -S libva-vdpau-driver mesa-vdpau vdpauinfo libva-utils libva-mesa-driver
+	
+	Verificar SSD TRIM e ativa-lo se ele estiver desativado.
+		sudo systemctl status fstrim.timer
+
+	Instale o yay para ter acesso ao AUR
+
+	Impressora
+		sudo pacman -S cups hplip system-config-printer skanlite
+		sudo systemctl enable cups
+
+	Instale git
+		sudo pacman -S git
+
+	Remova pacotes orfãos.
