@@ -1,0 +1,278 @@
+Manual de instalação do void linux
+
+Void linux possui atualmente(dia 1 de setembro de 2021) as seguintes isos de instalação.
+	[*] base
+	[ ] enlightenment
+	[ ] cinnamon
+	[ ] lxde
+	[ ] lxqt
+	[ ] mate
+	[ ] xfce
+
+E tem suporte a 4 arquiteturas
+	[*] x86_64
+	[ ] i686
+	[ ] arm
+	[ ] arm platforms
+
+Neste manual será instalado a iso base glibc da arquitetura x86_64
+
+0. glibc? musl?
+	Wikipedia musl : musl é uma biblioteca padrão C destinada a sistemas operacionais baseados no kernel Linux.
+	Wikipedia glibc : A GNU C Library, ou glibc, é a biblioteca padrão do C do projeto GNU.
+
+	A diferença principal é : musl é uma lib que tem como objetivo ser a LibC mais leve do mundo opensource, ou seja, é tentador para você que deseja um sistema leve e enxuto, entretanto, tem o lado de que a maioria(99%) dos programas linux são feitos em glibc e não é atoa que se chamam GNU/Linux, compreende?
+	Void linux tem suporte para isos tanto glibc e musl, eu digo de pé junto e defendo com unhas e dentes, vocẽ só vai saber se é ruim testando.
+
+1. Antes de tudo, calma.
+	Calma, void linux não irá te dar um terminal e lhe dizer : se vira bonitão. Eu considero sua instalação muito mais fácil que a instalação do arch(por sua vez também mais fácil que a instalação do gentoo) e gosto da ideia da iso base, pois com ela nós podemos instalar a interface grática que quisermos, levando em conta que ele não possui uma iso pronta com gnome nem kde, pode ser que você se interesse por instalar alguma dessas 2 DE.
+
+2. Login
+	Void linux te dá duas possibilidades de login, o root que tem como senha voidlinux e possui todas as permissões de root não precisando o uso de sudo, assim como o usuário anon, que para economizar linhas, é o root com outro nome.( sim sua senha é a mesma do root, voidlinux)
+
+	Para começar a instalação usa-se o comando void-installer.
+
+2. Básico
+	Keyboard: Aperte a tecla "b" para ir para os layouts de teclado que começam com b, procure o br-abnt2 se for o seu, se não for procure por outro, seguindo o mesmo princípio para facilitar sua vida.
+
+	Network: Selecione a interface de rede, não será difícil fazer isso, aperte em yes para que ele use o DHCP, que vai lhe entregar um ip automaticamente.
+
+	Source:
+		Local > vai usar os arquivos que estão na iso de instalação para fazer a instalação do Void Linux.
+		Network > vai baixar os pacotes da interne para fazer a instalação do void linux.
+
+		Eu recomendo você usar local, pois se sua internet cair, ou algo desse tipo que deixe impossível o uso da internet, você ainda continuara fazendo a instalação.
+	
+	Hostname : bote o nome do computador na rede, aqui vai de você.
+
+	Locale : digite "p" e procure por pt_BR.UTF-8, aqui você irá setar o local da máquina, é usado para exibir textos de forma certa, formatos de data e hora e entre outros.
+
+	Timezone : procure pelo seu timzone, no caso precisa selecionar a região primeiro e depois selecionar o estado, procure saber qual é o mais próximo de você.
+
+	RootPassword : CUIDADO, bote um password que você se lembre, perdeu esse password aqui, a dor de cabeça é enorme.
+
+	UserAccount : crie o "login name" que é o login que vai ser usado, letras minúsculas e sem espaço, para ser logado posteriormente, dê o nome do usuário que o usa, aceita espaço e letras maiúsculas, digite o password desse usuário e repita o mesmo.
+
+		Grupos: Cada usuário tem sua necessidade própria, para isso, abaixo há uma lista de users groups disponíveis na hora da seleção de grupos e o que cada um é.
+			[ ] root : autoexplicativo, acesso total ao sistema, usuário root.
+			[ ] bin : está em desuso, ou seja, não tem especificação.
+			[ ] sys : está em desuso, ou seja, não tem especificação.
+			[ ] kmem : Habilitado para ler as pastas/arquivos /dev/mem e /dev/port
+			[*] wheel : acesso privilegiado para algumas tarefas específicas do sistema relacionadas a administração do mesmo.
+			[ ] tty : acesso aos ttys, tty é literalmente o terminal que você está conectado.
+			[*] tape : acesso aos tape devices, tape driver é algum sistema de armazenamento que grave suas informações por magnetismo.
+			[ ] daemon : acesso a escrita dos daemons do sistema.
+			[ ] floppy : disquetes.
+			[ ] disk : acesso "cru" aos /dev/sd* e /dev/loop*
+			[ ] lp : acesso a impressoras.
+			[ ] dialout : acesso a portas seriais.
+			[*] audio : acesso aos dispositivos de áudio.
+			[*] video : acesso aos dispositivos de vídeo.
+			[ ] utmp : acesso de escrita nos diretórios de /var/run/utmp, /var/log/wtmp e /var/log/btmp.
+			[ ] adm : está em desuso, ou seja, não tem especificação.
+			[*] cdrom : acesso aos dispositivos de cd.
+			[*] optical : acesso aos dispotiviso de DVD.
+			[ ] mail : usado por alguns pacotes de emails.
+			[ ] storage : acesso a dispositivos removíveis de armazenamento.
+			[ ] scanner : acesso aos dispositivos de scanner.
+			[ ] network : está em desuso, ou seja, não tem especificação.
+			[*] kvm : acesso ao uso de KVM.
+			[ ] input : acesso aos dispositivos de entrada.
+			[ ] nogroup : acesso não privilegiado ao sistema.
+			[*] users : usuários normais.
+			[*] xbuilder : acesso ao uso dos comandos > xbps-uchroot e xbps-src
+
+			Todos esses grupos são grupos SECUNDÁRIOS, então você pode os adicionar depois por meio do comando : sudo useradd -G <grupo1,grupo2> <nome do usuário>
+			Eu recomendo deixar do jeito acima, pois qualquer coisa você pode adicionar um grupo como mostrado na linha acima.
+
+			(se quiser saber todos os grupos existentes no sistema operacional dê um cat no arquivo /etc/groups ou /etc/group)
+	
+	Bootloader : selecione o disco onde o bootloader vai ser instalado, geralmente é onde seu sistema também vai ser instalado, selecione sim para o terminal gráfico.
+
+	Particionamento:
+		Bom, no void linux, bios suporta tanto gpt quanto mbr, eu recomendo fortemente você usar mbr em bios pois é muito mais simples que fazer um gpt em bios.
+
+		No cfdisk, caso tenha um disco já criado e você deseje criar uma nova tabela de particionamento, vá em "dump" e aperte enter, selecione o tipo da tabela de particionamento.
+
+		MODO BIOS/MBR:
+			1. Crie uma partição que vai ser nosso /, pode deixar o seu tipo no padrão mesmo, não tem problema.
+			2. Crie uma partição swap, para definir o tamanho use a seguinte tabela para se guiar:
+				
+				SYSTEM RAM  |  TAMANHO DE SWAP RECOMENDADA | TAMANHO DE SWAP RECOMENDADA PARA HIBERNAÇÃO
+				  < 2gb     |     2x o da memória ram      |       3x o tamanho da memória ram
+				  2 - 8gb   |      Igual ao da ram         |       2x o tamanho da memória ram
+				  8 - 64gb  |            4GB               |       1.5x o tamanho da memória ram
+				  64GB      |            4GB               |       Não é recomendado o uso de hibernação
+				  
+				  Fonte: https://docs.voidlinux.org/installation/live-images/partitions.html
+
+			Defina o tipo da partição swap para linux swap.
+
+		MODO EFI/GPT:
+			1. Crie a partição que vai ser nosso /boot/efi, seu tamanho pode ser de 512MB e não menos que 200MB e não mais que 1GB, mude seu tipo para EFI system.
+			2. Crie a partição de / com atenção para deixar o tamanho livre para o swap(se guie pela tabela da seção de bios/mbr) 
+			3. Crie sua partição de swap seguindo a tabela que está no modo bios/mbr e mudando seu tipo para linux swap
+		
+		Escreva as mudanças e vamos nessa.
+
+	Filesystem:
+		EFI/GPT:
+			1. Formate sua partição de boot em FAT32 e dê o nome de /boot/efi, segundo a documentação do void, TEM QUE SER ESSE NOME.
+			2. Formate seu root em ext4 e dê o nome de /
+			3. Formate sua partição de swap em linux swap.
+
+		BIOS/MBR:
+			1. Formate sua partição de root em ext4 e dê seu nome de /
+			2. Formate sua partição de swap em linux swap.
+
+
+	Install: Verifique se está tudo certo, e aperte em yes se estiver tudo nos conformes. Esta parte(assim como a maioria das coisas daqui pra frente) vai demorar um pouco, então pode ir tomar uma água, ir no banheiro e etc.
+
+
+3. Configurando o essencial para o uso.
+	Bom, nós temos algumas tasks para fazer antes de continuar com a instalação, pois o nosso void veio, digamos, bem void.
+	
+	1. Logado no usuário root digite o comando chsh -s /bin/bash para mudar o shell para o bash.
+
+	2. Habilitar os mirrors é algo essencial né, então faça isso!
+		sudo cp /usr/share/xbps.d/00-repository-main.conf /etc/xbps.d/, aqui nós iremos copiar esse arquivo de configurações de respositórios para a pasta de configuração do xbps
+		
+		cd /etc/xbps.d/
+	
+		sudo chmod o+r 00-repository-main.conf
+			o+ adicione no grupo outros, nesse contexto outros é todo aquele usuário que não faz parte do grupo primário.
+			r permissão de leitura
+		
+		Vá na pasta home : cd ou cd ~
+		Agora execute o comando para fazer a atualização completa do sistema( que na verdade irá atualizar seus repositórios agora ) : sudo xbps-install -Suv
+
+	3. instale o bash-completion para podermos usar nosso BELÍSSIMO tab : sudo xbps-install bash-completion && source /etc/profile
+
+
+4. Instalação nossa interface grática, vulgo DE
+	Bom, nesta iso base não vem uma interface gráfica(e você poderia ter pulado este passo se tivesse feito a instalação com uma iso com DE), para este manual eu irei instalar um WM o meu amado bspwm.
+
+	1. Instalando pacotes essenciais
+		sudo xbps-install -S xorg xinit dunst flameshot polybar betterlockscreen bspwm sxhkd feh rofi xfce4-terminal xf86-video-amdgpu/xf86-video-intel firefox lightdm lightdm-gtk3-greeter wget curl neovim thunar
+
+	2. Configurando bspwm no void linux
+		Vamos configurar o básico do bspwm e do sxhkd para que possamos iniciar sem grandes problemas.
+
+		crie as pasta sxhkd e bspwm no .config : mdkir -p .config/{bpswm,sxhkd}
+		copie os arquivos bspwmrc e sxhkdrc de /usr/share/doc/bspwm/examples/ para seus respectivos .config
+		agora a parte mais mamão com açúcar, abra o sxhkd e troque o terminal que é executado no super + enter em seguida vá no bspwmrc e bote o seguinte:
+			sxhkd &
+			setxkbmap br
+
+		faça nos 2 usuários(root e o que você criou)
+
+
+	3. Vamos iniciar alguns serviços.	
+		O void linux usa o runit para fazer o gerenciamento de seus serviços, ele é MUITO simples, ao meu ver mais simples que systemd, e bom, você deve se perguntar(eu espero): "mas cara e se um pacote não for possível de ser um serviço?", é impossível, todo pacote instalado por xbps-install e que pode ser um serviço terá um arquivo de serviço na pasta /etc/sv
+
+		Para iniciar um serviço basta que nós façamos um link simbólico da pasta /etc/sv/<serviço> em /var/service/
+		Para listar todos os serviços que estão rodando, eu espero que você tenha presumido que é o comando : ls /etc/service/	
+
+		Agora vamos iniciar dois serviços essenciais, vá na pasta home dos usuários[root e o que você criou] e crie um arquivo com o nome .xinitrc, dentro dele bote o comando : exec bspwm, ele irá iniciar o bspwm que por sua vez vai ler seu arquivo de bspwmrc, então não é preciso rodar o sxhkd aqui, mas sim no bspwmrc.
+		Agora inicie dois serviços, o lightdm e o dbus.
+			ln -s /etc/sv/lightdm /var/service/
+			ln -s /etc/sv/dbus /var/service
+
+		Pronto, agora se divirta na pós instalação :)
+
+
+5. O que você precisa saber sobre mirrors
+	O QUE SÃO "MIRRORS"
+		Mirrors é um conceito que quer dizer "cópia exata" em computação, logo, um mirror do void linux é uma cópia exata dos repositórios oficiais do void linux, eles servem geralmente para que nós possamos baixar algum arquivo ou um conjunto destes. No caso do void linux, é por ele que iremos baixar programas/pacotes que iremos usar em nossas máquinas.
+	
+	MIRRORS DE TIER 1
+		São mirrors em que terão SEMPRE as últimas atualizações, entretando serão um pouco lentos em relação aos outros que podem ser mais rápidos. São 3 mirrors que são desse tipo e estão listados abaixo assim como tendo suas localizações.
+	
+		https://alpha.de.repo.voidlinux.org/current				EU: Finland
+		https://mirrors.servercentral.com/voidlinux/current		USA: Chicago
+		https://alpha.us.repo.voidlinux.org/current				USA: Kansas City
+	
+	
+	ENTENDENDO OS MIRRORS
+		Para habilitar outros mirrors, você só precisa adicionar mais repositórios a esses links os repositórios possíveis para serem adicionados são:
+			/multilib/nonfree
+			/multilib
+			/nonfree
+			/debug (não será tratado aqui)
+		
+		Agora vou explicar o que cada coisa dessas é. O link em si vai até o .org ou até o .com(no caso dos tier 1), depois disso são os repositórios, /current é o repositório padrão, que pode modificado e ter mais repositórios.
+			Como exemplo temos o mirror : https://alpha.de.repo.voidlinux.org/current
+		
+		O /nonfree é um repositório de softwares com código não livre, como o caso da steam, por exemplo, já que o padrão não possui softwares de código não livre, você terá que ativa-lo se quiser usar.
+		Como exemplo temos o mirror : https://alpha.de.repo.voidlinux.org/current/nonfree
+	
+		O /multilib é um repositório de códigos de software livre que são 32bits, pois por padrão voidlinux baixa softwares 64bits.
+			Como exemplo temos o mirror : https://alpha.de.repo.voidlinux.org/current/multilib
+		
+		O /multilib/nonfree é quaaase a mesma coisa de cima, mas muda a parte do software livre pois se trata de softwares proprietários, ou seja, código proprietário.
+			Como exemplo temos o mirror : https://alpha.de.repo.voidlinux.org/current/multilib/nonfree
+	
+	HABILITANDO OS OUTROS MIRRORS.
+		O xbps quando for precisar ler algum mirror, ele vai ler na pasta /etc/xbps.d/
+	
+		Copie o arquivo 00-repository-main.conf e modifique seu nome, bote 10- como sendo o seu número e permaneça o nome repository-, entretanto modifique o main para o mirror que você deseja usar e permaneça a sua extensão.
+		Por exemplo:
+			Se eu quero habilitar o nonfree, eu troco o main por nonfree, se eu quero habilitar o multilib/nonfree, eu modifico o main para multilib-nonfree, entendeu o padrão?
+		
+		Modifique seu conteúdo agora, entre nele com o editor de texto do seu gosto e vamos muda-lo, existe a variável repository, que é ela que vamos mudar.
+			Seguindo o que lhe foi ensinado no entendendo mirrors, substitua o mirror que há nessa variável pelo mirror que você quer usar.
+		
+		Exemplos:
+			Antes um adendo, o mirror tem que bater com o nome do arquivo, portanto se eu quero um mirror nonfree, eu não irie botar o nome do arquivo de 10-repository-main2.conf, eu botarei seu nome como 10-repository-nonfree.conf, acho que você já conseguiu entender o que eu quis dizer.
+	
+			# mirror de um multilib nonfree
+			# nome do arquivo = 10-repository-multilib-nonfree.conf
+			repository=https://mirrors.servercentral.com/voidlinux/current/multilib/nonfree
+	
+			# mirror de um nonfree
+			# nome do arquivo : 10-respository-nonfree.conf
+			repository=https://mirrors.servercentral.com/voidlinux/current/nonfree
+
+
+6. Pós instalação
+	0. Mirros list
+		Ative os 4 mirrors, você não ira usar todos, mas é interessante te-los ativados.
+
+	1. Instale o microcode
+		Se você usa intel você precisará habilitar o mirror de nonfree, já no amd é mais fácil, você só precisa instalar o linux-firmware-amd.
+
+	2. Instale um firewall
+		sudo xbps-install -S ufw : instalando o ufw para ser nosso firewall
+		sudo ln -s /etc/sv/ufw /var/service : botando o ufw para rodar no boot do sistema
+		sudo ufw enable : habilitando o ufw.
+	
+	3. Instalando pacotes a respeito de áudio
+		sudo xbps-install -S pulseaudio pavucontrol pipewire alsa-plugins-pulseaudio alsa-plugins-jack
+	
+	4. Instalando codex e utilitários.
+		sudo xbps-install -S alsa-utils alsa-plugins flac wavpack zip unzip unrar p7zip ffmpeg mesa-demos tar
+	
+	5. gst-libav gst-plugins-bad1 gst-plugins-base1 gst-plugins-good1 gst-plugins-ugly1 gstreamer-vaapi gstreamer1
+
+	6. Aceleração de vídeo
+		sudo xbps-install -S libva-vdpau-driver mesa-vdpau vdpauinfo libva-utils
+	
+	7. SSD TRIM
+		sudo xbps-install -S cronie
+		habilite o serviço do cron, não será difícil identificar esse serviço.
+		bote um script em /etc/cron.daily/ com o nome que desejar, mas eu recomendo botar fstrim.
+		dentro dele bote as seguintes linhas de comando:
+			#!/bin/sh
+			fstrim / > /dev/null
+
+		dê permissão de execução para outros com o comando : sudo chmod o+x /etc/cron.daily/<nome do script que você deu>
+	
+	8. IMPRESSORAS
+		sudo xbps-install -S cups hplip system-config-printer skanlite	
+		Habilite o serviço cups com o comando : ln -s /etc/sv/cupsd /var/service
+	
+	9. Instale seus programas, verifique a existência dos mesmo no site:
+		https://voidlinux.org/packages/
+
+	9.0
+		sudo xbps-install -S neofetch htop qbittorrent flameshot telegram-desktop
