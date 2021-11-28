@@ -242,7 +242,7 @@ Caso você esteja com wifi a cabo, pule este passo:
 
 -----------------------------------------------------------------------
 18. Seja feliz.
-	CONFIGURING TERMINAL:
+	CONFIGURING i3:
 		Após os procedimentos acima, aceite gerar o arquivo de configuração do i3wm e abra um tty(cntrl + alt + F3).
 		e faça os seguintes passos:
 			nvim .config/i3/config
@@ -253,6 +253,15 @@ Caso você esteja com wifi a cabo, pule este passo:
 				exec_always setxkbmap br
 				exec_always picom
 				exec_always flameshot
+		
+			# crie a pasta do i3status, copie o i3status.conf e mude seu dono.
+				mkdir ~/.config/i3status && sudo cp /etc/i3status.conf ~/.config/i3status/i3status.conf && cd ~/.config/i3status/ && sudo chown <your_username>:<your_username> i3status.conf
+
+			# mudando no bar() o i3status
+			# vá no comando que está lá (status_command i3status) e adicione ao final o comando : -c /home/<your_username>/.config/i3status/i3status.conf
+			# edite da sua forma o i3status que está na sua pasta home e seja feliz.
+			# recomendação de edição do i3status do home.
+				# comentar a linha do ipv6, wireless _first_, battery all
 
 	Faça o ranking dos melhores mirrors para você:
 		https://wiki.archlinux.org/title/mirrors
@@ -298,5 +307,3 @@ Caso você esteja com wifi a cabo, pule este passo:
 
 Torrent:
 	https://github.com/webtorrent/webtorrent-cli
-
-
