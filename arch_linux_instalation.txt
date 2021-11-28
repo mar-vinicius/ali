@@ -8,10 +8,10 @@ COMO INSTALAR O ARCH LINUX
 Ele irá logar já como usuário root.
 -----------------------------------------------------------------------
 2. Comandos úteis
-	clear : limpar na tela.
+	clear : limpar a tela.
 
 -----------------------------------------------------------------------
-3. Defina o layout do teclado para a instalação
+3. Defina o layout do teclado para a instalação(é temporário, não se preocupe)
 	loadkeys br-abnt2 : irá carregar o padrão br-abnt2, vulgo BR.
 
 -----------------------------------------------------------------------
@@ -23,13 +23,15 @@ Caso você esteja com wifi a cabo, pule este passo:
 
 -----------------------------------------------------------------------
 5. particionamento de disco.
-	Primeiro de tudo, saiba se seu computador é BIOS ou UEFI, vocẽ tanto pode ver na bios do sistema quanto usar o comando : ls /sys/firmware/efi/efivars, se retornar o diretório sem NENHUM erro, é EFI, se não, é bios.
+	Primeiro de tudo, saiba se seu computador é BIOS ou UEFI, vocẽ tanto pode ver na bios do sistema quanto usar o comando : ls /sys/firmware/efi/efivars, se retornar o conteúdo do diretório, seu computador está em EFI BOOT. Se retornar um erro ao tentar ler a pasta, é porque certamente ele está em BIOS.
 
-	Em primeiro lugar, mande um lsblk para visualizar os discos disponíveis.
+	Em primeiro lugar, mande um lsblk para visualizar os discos disponíveis, reconheça o dispositivo onde será instalado o sistema pelo tamanho dele.
+
+	(Abaixo use GPT se seu sistema for EFI e use DOS(MBR) se ele for BIOS, é uma recomendação apenas.)
 
 	Em segundo lugar, mande o fdisk <caminho do disco que vai ser criado a nova tabela>. Aperte "m" e crie um novo label, no caso de GPT digite "g", caso seja MBR digite "o". Aperte "w" vamos nessa. Foi criado agora a nova tabela DOS ou GPT.
 
-	Agora vamos usar o cfdisk, para usa-lo, especifique o caminho do disco em que deseja particionar o comando fica assim : cfdisk <caminho do disco>. 
+	Agora vamos usar o cfdisk, para usa-lo, especifique o caminho do disco em que deseja particionar, o comando fica assim : cfdisk <caminho do disco>. 
 	
 	MODO BIOS:
 		Aperte em NEW e crie uma nova partição, esta tem que ser a root, bote o tamanho dela levando em conta se você quer ou não separar o home e se quer ou não uma swap.
@@ -40,7 +42,7 @@ Caso você esteja com wifi a cabo, pule este passo:
 		Crie a partição root levando em conta se você vai ou não ter /home separado e se vai ou não ter swap.
 		Crie a partição de swap, é recomendável que seja do tamanho de sua memória RAM, mude seu tipo para linux swap.
 
-	Vá em WRITE e aperte ENTER, depois digite YES. Se quiser ter certeza, em cima de cada partição faça o mesmo processo.(eu recomendo)
+	Vá em WRITE e aperte ENTER, depois digite YES.
 	Vá em QUITE e pronto.
 
 	Verifique se foi mesmo feito tudo digitando fdisk -l <caminho do seu disco>.
@@ -49,14 +51,14 @@ Caso você esteja com wifi a cabo, pule este passo:
 7. Formatando...
 	MODO BIOS:
 		Formate a sua partição root e sua partição home com o tipo desejado, o padrão do linux é ext4, então o comando fica : mkfs.ext4 <caminho da partição>
-		Formate sua partição swap se tiver optado por fazela com o comando : mkswap <partição swap>
+		Formate sua partição swap se tiver optado por faze-la. Com o comando isso será feito : mkswap <partição swap>
 	
 	MODO EFI:
 		Comece formatando a partição de boot, formate-a em Fat32 usando o seguinte comando : mkfs.fat -F32 <caminho da partição boot>
 		Formate a sua partição root e sua partição home em ext4 com o seguinte comando: mkfs.ext4 <caminho da partição> 
 		Formate a sua partição swap com o comando : mkswap <caminho da partição>
 
-	Para entender cada comando daqui, é fácil, mkfs seria entendido como make file system e mkswap como make swap ou make swap file.
+	Para entender cada comando daqui, é fácil, mkfs seria entendido como make file system e mkswap como make swap.
 
 -----------------------------------------------------------------------
 8. Montando partições.
@@ -70,17 +72,16 @@ Caso você esteja com wifi a cabo, pule este passo:
 
 		mount <caminho da partição root> /mnt
 		mount <caminho da partição home> /mnt/home ( se tiver feito )
-		swapon <caminho da partição swap>	
+		swapon <caminho da partição swap>
 
 	MODO EFI:
 		crie a pasta destinada ao boot e crie a pasta /mnt/home se tiver feito.
 		mkdir /mnt/efi ou então mkdir /mnt/boot ( pasta destinada ao boot )
 		mkdir /mnt/home ( se tiver feito )
 
-		mount <caminho da partição root> /mnt
-		mount <caminho da partição boot> /mnt/efi ou /mnt/boot
+		mount <caminho da partição boot> /mnt/efi ( ou /mnt/boot )
 		mount <caminho da partição home> /mnt/home ( se tiver feito )
-		swapon <caminho da partição swap>	
+		swapon <caminho da partição swap>
 
 -----------------------------------------------------------------------
 9. E vamos puxar os pacotes
@@ -93,7 +94,6 @@ Caso você esteja com wifi a cabo, pule este passo:
 	linux-firmware: arquivos de firmware necessários para o kernel linux, é necessário sua instalação, menos se estiver em vm.
 
 	O tamanho desses pacotes após a instalação é 1.6gb em média.
-	Agora vocẽ pode sair, beber uma água, ir no banheiro e etc, essa parte demora um bocado.
 
 -----------------------------------------------------------------------
 10. FSTAB
@@ -103,36 +103,34 @@ Caso você esteja com wifi a cabo, pule este passo:
 
 	-U : de Uuid
 
-	O comando pode ser lido como : gere o uuid de mnt e mande para o /mnt/etc/fstab.
-
-	Caso queira verificar ele, veja com o comando cat : cat /mnt/etc/fstab. Caso tenha alguma discrepãncia, use o nano para edita-lo
+	O comando pode ser lido como : gere o uuid de mnt e mande para o arquivo /mnt/etc/fstab
+	Caso queira verificar ele, veja com o comando cat : cat /mnt/etc/fstab. Caso tenha alguma discrepãncia, use o nano para edita-lo ou o nvim/vim.
 
 -----------------------------------------------------------------------
 11. Mudando de lado.
 	Agora vamos sair da ISO de instalação, que é onde ficamos até agora fazendo todo o processo, e vamos para o sistema que instalamos.
 
-	arch-chroot /mnt é o comando que você irá usar.
+	arch-chroot /mnt é o comando que você irá usar
 
 -----------------------------------------------------------------------
-12. Algumas instalações básica e setando seu local, seu horário, seu idioma, seu teclado e seu host.
-	Instale neovim ou nano e instale networkmanager : pacman -S neovim nano networkmanager
-
-	Crie um link simbólico, que é muito fácil, da sua região em etc/localtime para definir o fuso horário da máquina.
+12. Algumas instalações básica e dando uma configurada básica na máquina
+	Instale neovim ou nano e instale networkmanager : pacman -S neovim nano 	
+	Crie um link simbólico, da sua região em /etc/localtime para definir o fuso horário da máquina.
 		ln -sf /usr/share/zoneinfo/America/<sua cidade> /etc/localtime
 
 	Agora sincronize com o horário do seu PC.
 		hwclock --systohc
 
-	Edite o arquivo /etc/locale.gen com nano e busque o seguinte padrão:
-		pt-BR.UTF-8 UTF-8 e descomente a linha, dê um control+x e digite "y" e dê enter.
+	Edite o arquivo /etc/locale.gen busque a seguinte linha:
+		pt-BR.UTF-8 UTF-8 descomente-a, salve e saia
 
 	Agora vamos gerar o arquivo que editamos acima com o locale-gen.
 
-	Envie a configuração de idioma para o /etc/locale.conf ou então use o nano para fazer isso e comando com echo é : echo LANG=pt_BR.UTF-8 >> /etc/locale.conf
+	Envie a configuração de idioma para o /etc/locale.conf ou então use o editor de texto que você usa para fazer isso, o comando com echo é : echo LANG=pt_BR.UTF-8 >> /etc/locale.conf
 
-	Agora envie a configuração de teclado com echo também ou edite o arquivo da seguinte forma : echo KEYMAP=br-abnt2 >> /etc/vconsole.conf
+	Agora envie a configuração de teclado com echo também ou edite o arquivo de forma semelhante : echo KEYMAP=br-abnt2 >> /etc/vconsole.conf
 
-	Edite o arquivo com nano /etc/hostname, e bote o nome que você deseja que o computador tenha na rede, no caso APENAS o nome e sem aspas. control+x > y > enter.
+	Edite o arquivo com nano /etc/hostname, e bote o nome que você deseja que o computador tenha na rede, no caso APENAS o nome e sem aspas. ( ou então use o echo para fazer isso de forma similar como fizemos acima )
 
 	Edite o arquivo /etc/hosts da seguinte forma:
 		127.0.0.1	localhost
@@ -141,43 +139,42 @@ Caso você esteja com wifi a cabo, pule este passo:
 
 -----------------------------------------------------------------------
 13. Passwd e novo usuário.
-	mude a senha do root usando o comando passwd e digitando duas vezes a senha.
+	Mude a senha do root usando o comando passwd e digitando duas vezes a senha. O comando é "passwd" apenas.
 
 	Crie um novo usuário fazendo da seguinte forma : useradd -m -g users -G wheel <nome do usuário> seguido de setar o password para ele passwd <nome do usuário>
+		O comando fica : useradd -m -g users -G wheel <nome do usuário> && passwd <nome do usuário>
 
 -----------------------------------------------------------------------
 14. Instalar pacotes essenciais e algumas modificações.
 	pacman -S dosfstools os-prober mtools network-manager-applet networkmanager wpa_supplicant wireless_tools dialog sudo
 	systemctl enable NetworkManager
 
-	Edite o arquivo /etc/sudoers com nano, vá lá no final do arquivo e adicione:
-	<nome do usuário> ALL=(ALL) ALL
-	control+x > y > enter
+	Edite o arquivo /etc/sudoers, vá lá no final do arquivo e adicione:	<nome do usuário> ALL=(ALL) ALL
+		Ou simplesmente faça : echo "<nome do usuário> ALL=(ALL) ALL" >> /etc/sudoers
 
 -----------------------------------------------------------------------
-15. Grub(aqui não será explicado os comandos, veja a wiki para mais informações)
-	Antes de instalar o grub em si, vamos fazer antes a instalação do microcode, ele é essencial para uma perfomance melhor e uma estabilidade melhor no sistema.
+15. Grub
+	Antes de instalar o grub em si, vamos fazer antes a instalação do microcode, ele é essencial para uma perfomance melhor e uma estabilidade maior no sistema.
+
 	Se você utiliza intel use o comando para intel e se usa amd, logicamente, use o comando para amd:
 		intel : pacman -S intel-ucode
 		amd : pacman -S amd-ucode
 
 
-	MODO BIOS
+	MODO BIOS:
 		pacman -S grub
 		grub-install --target=i386-pc --recheck /dev/sda
 		grub-mkconfig -o /boot/grub/grub.cfg
 
 
-	MODO UEFI
+	MODO UEFI:
 		pacman -S grub efibootmgr
 		grub-install --target=x86_64-efi --efi-directory=<diretório onde o boot está> --bootloader-id=GRUB
 		grub-mkconfig -o /boot/grub/grub.cfg
 
 -----------------------------------------------------------------------
 16. Reboot e torcendo pra que dê certo.
-	exit > reboot > retire seu pendrive bootável
-
-	caso não dê boot, é meu amigo, sinto muito, volte pra primeira linha deste arquivo e refaça com atenção dobrada, sinto muito você fez algo errado ou esqueceu de algo.
+	exit > reboot > retire seu pendrive bootável e comece a torcer
 
 -----------------------------------------------------------------------
 17. E vamos que vamos, mais configurações.
