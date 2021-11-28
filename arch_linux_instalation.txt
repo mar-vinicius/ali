@@ -148,6 +148,7 @@ Caso você esteja com wifi a cabo, pule este passo:
 -----------------------------------------------------------------------
 14. Instalar pacotes essenciais e algumas modificações.
 	pacman -S dosfstools os-prober mtools network-manager-applet networkmanager wpa_supplicant wireless_tools dialog sudo
+	systemctl enable NetworkManager
 
 	Edite o arquivo /etc/sudoers com nano, vá lá no final do arquivo e adicione:
 	<nome do usuário> ALL=(ALL) ALL
@@ -193,7 +194,7 @@ Caso você esteja com wifi a cabo, pule este passo:
 		APENAS SE NÃO TIVER RESOLVIDO, edite com nano o seguinte arquivo referente ao DNS : /etc/resolv.conf e mude o que está antes do ip para 1.1.1.1 ou 8.8.8.8 ou 8.8.4.4.
 
 
-	pacman -S xorg	
+	pacman -S xorg
 
 	Agora instale o seu hardware de vídeo
 		intel: pacman -S xf86-video-intel libgl mesa
@@ -206,7 +207,7 @@ Caso você esteja com wifi a cabo, pule este passo:
 		
 		i3:
 			INSTALAÇÃO:
-				pacman -S i3 xfce4-terminal feh rofi dunst firefox flameshot python-pywal thunar picom
+				pacman -S i3-wm i3lock i3status xfce4-terminal feh rofi dunst firefox flameshot python-pywal thunar picom
 
 				INSTALLING LY:
 					git clone https://aur.archlinux.org/ly
@@ -232,7 +233,8 @@ Caso você esteja com wifi a cabo, pule este passo:
 						  Exec=/opt/brave/brave
 						  Name=Brave Browser
 						  Icon=/opt/brave/logo.png" > brave.desktop && cd ~
-
+					
+					# edite o arquivo brave.desktop e remove os tabs em excesso.
 					# botando o brave no path do linux
 					# edite o .bashrc na pasta home do seu usuário e bote na última linha:
 						export PATH=$PATH:/opt/brave
@@ -241,27 +243,37 @@ Caso você esteja com wifi a cabo, pule este passo:
 	Reinicie o computador e seja feliz com a pós instalação. (LEIA UM POUCO DO PASSO 18)
 
 -----------------------------------------------------------------------
-18. Seja feliz.
-	CONFIGURING i3:
-		Após os procedimentos acima, aceite gerar o arquivo de configuração do i3wm e abra um tty(cntrl + alt + F3).
-		e faça os seguintes passos:
-			nvim .config/i3/config
-			# vá no comentário onde tem-se escrito sobre o start a terminal e mude o i3-sensible-terminal para o terminal do seu desejo(o comando para executa-lo)
-			# mude o que está escrito abaixo do comentário start dmenu, apenas mudando o último parâmetro passado(dmenu_run): rofi -show drun -show-icons
-			# vá no fim do arquivo e bote os seguintes comandos:
-				exec_always feh --bg-scale --no-fehbg ~/wallpaper/wall.png
-				exec_always setxkbmap br
-				exec_always picom
-				exec_always flameshot
-		
-			# crie a pasta do i3status, copie o i3status.conf e mude seu dono.
-				mkdir ~/.config/i3status && sudo cp /etc/i3status.conf ~/.config/i3status/i3status.conf && cd ~/.config/i3status/ && sudo chown <your_username>:<your_username> i3status.conf
+18. CONFIGURING i3
+	(um comando útil é usar o $mod+shift+r para reiniciar o i3)
+	Após os procedimentos acima, aceite gerar o arquivo de configuração do i3wm e abra um tty(cntrl + alt + F3).
+	e faça os seguintes passos:
+		nvim .config/i3/config
+		# vá no comentário onde tem-se escrito "start a terminal" e mude o i3-sensible-terminal para o terminal do seu desejo(o comando para executa-lo, no caso)
+		# mude o que está escrito abaixo do comentário "start dmenu", apenas mudando o último parâmetro passado(dmenu_run) para rofi -show drun -show-icons
+		# vá no fim do arquivo e bote as seguintes linhas para setar, respectivamente : um wallpaper, seu layout de teclado, transparência e outros efeitos e a ferramenta de captura de tela.
+			exec_always feh --bg-scale --no-fehbg ~/wallpaper/wall.png
+			exec_always setxkbmap br
+			exec_always picom
+			exec_always flameshot
 
-			# mudando no bar() o i3status
-			# vá no comando que está lá (status_command i3status) e adicione ao final o comando : -c /home/<your_username>/.config/i3status/i3status.conf
-			# edite da sua forma o i3status que está na sua pasta home e seja feliz.
-			# recomendação de edição do i3status do home.
-				# comentar a linha do ipv6, wireless _first_, battery all
+		# crie no final deste mesmo arquivo um keybind para o i3lock que pode ser algo como:
+			bindsym $mod+x exec i3lock --color=191428
+	
+		# crie a pasta do i3status, copie o i3status.conf e mude seu dono.
+			mkdir ~/.config/i3status
+			sudo cp /etc/i3status.conf ~/.config/i3status/i3status.conf
+			cd ~/.config/i3status/
+			sudo chown <your_username>:<your_username> i3status.conf
+
+		# mudando no bar() o i3status
+		# edite novamente o arquivo ~/.config/i3/config
+		# vá no comando que está lá (status_command i3status) e adicione ao final o comando : -c /home/<your_username>/.config/i3status/i3status.conf
+		# edite da sua forma o i3status que está na sua pasta home e seja feliz.
+		# recomendação de edição do i3status do home.
+			# comentar a linha do ipv6, wireless _first_, battery all
+
+-----------------------------------------------------------------------
+19. Seja feliz.
 
 	Faça o ranking dos melhores mirrors para você:
 		https://wiki.archlinux.org/title/mirrors
