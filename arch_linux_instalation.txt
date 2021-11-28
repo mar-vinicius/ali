@@ -7,11 +7,11 @@ COMO INSTALAR O ARCH LINUX
 
 Ele irá logar já como usuário root.
 -----------------------------------------------------------------------
-3. Comandos úteis
+2. Comandos úteis
 	clear : limpar na tela.
 
 -----------------------------------------------------------------------
-2. Defina o layout do teclado para a instalação
+3. Defina o layout do teclado para a instalação
 	loadkeys br-abnt2 : irá carregar o padrão br-abnt2, vulgo BR.
 
 -----------------------------------------------------------------------
@@ -73,8 +73,8 @@ Caso você esteja com wifi a cabo, pule este passo:
 		swapon <caminho da partição swap>	
 
 	MODO EFI:
-		crie a pasta /mnt/boot/efi e crie a pasta /mnt/home se tiver feito.
-		mkdir /mnt/efi ou então mkdir /mnt/boot
+		crie a pasta destinada ao boot e crie a pasta /mnt/home se tiver feito.
+		mkdir /mnt/efi ou então mkdir /mnt/boot ( pasta destinada ao boot )
 		mkdir /mnt/home ( se tiver feito )
 
 		mount <caminho da partição root> /mnt
@@ -204,28 +204,56 @@ Caso você esteja com wifi a cabo, pule este passo:
 	Agora instale sua interface gráfica. 
 		XFCE: pacman -S xfce4 xfce4-goodies xfce4-terminal
 		
-		BSPWM:
+		i3:
 			INSTALAÇÃO:
-				pacman -S bspwm sxhkd alacritty feh rofi dunst mpd firefox flameshot lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings python-pywal calc thunar
-				
-				(necessario fazer instalação de yay para fazer a instalação do polybar, recomendo fazer no pós instalação)
-				yay -S polybar
+				pacman -S i3 xfce4-terminal feh rofi dunst firefox flameshot python-pywal thunar picom
+
+				INSTALLING LY:
+					git clone https://aur.archlinux.org/ly
+					cd ly && makepkg -si
+					sudo systemctl enable ly.service
+
+				INSTALLING BRAVE:
+					# baixando e descompactando
+					sudo mkdir -p /opt/brave
+					cd /opt/brave
+					sudo curl -Los brave.zip https://github.com/brave/brave-browser/releases/download/v1.34.42/brave-browser-nightly-1.34.42-linux-amd64.zip
+					sudo unzip brave.zip
+					sudo rm brave.zip
+					sudo mv product_logo_128_nightly.png logo.png
+					
+					# criando o .desktop do brave
+					cd /usr/share/applications/
+					echo "[Desktop Entry]
+						  Encoding=UTF-8
+						  Version=$VERSION
+						  Type=Application
+						  Terminal=false
+						  Exec=/opt/brave/brave
+						  Name=Brave Browser
+						  Icon=/opt/brave/logo.png" > brave.desktop && cd ~
+
+					# botando o brave no path do linux
+					# edite o .bashrc na pasta home do seu usuário e bote na última linha:
+						export PATH=$PATH:/opt/brave
 
 
-			CONFIGURAÇÃO(faça nos 2 usuários[root e o que você criou]):
-				sudo systemctl enable lightdm
-				mkdir -p .config/{bspwm,sxhkd}
-				install -Dm755 /usr/share/doc/bspwm/examples/bspwmrc .config/bspwm/
-				install -Dm755 /usr/share/doc/bspwm/examples/sxhkd .config/sxhkd/
-				Edite o arquivo .config do sxhkd e troque o terminal para o xfce4-terminal
-				Edite o arquivo .config do bspwm e bote na linha abaixo da linha após o shebang o seguinte :
-					sxhkd &
-					setxkbmap br
-
-	Reinicie o computador e seja feliz com a pós instalação.
+	Reinicie o computador e seja feliz com a pós instalação. (LEIA UM POUCO DO PASSO 18)
 
 -----------------------------------------------------------------------
 18. Seja feliz.
+	CONFIGURING TERMINAL:
+		Após os procedimentos acima, aceite gerar o arquivo de configuração do i3wm e abra um tty(cntrl + alt + F3).
+		e faça os seguintes passos:
+			nvim .config/i3/config
+			# vá no comentário onde tem-se escrito sobre o start a terminal e mude o i3-sensible-terminal para o terminal do seu desejo(o comando para executa-lo)
+			# mude o que está escrito abaixo do comentário start dmenu, apenas mudando o último parâmetro passado(dmenu_run): rofi -show drun -show-icons
+			# vá no fim do arquivo e bote os seguintes comandos:
+				exec_always feh --bg-scale --no-fehbg ~/wallpaper/wall.png
+				exec_always setxkbmap br
+				exec_always picom
+				exec_always flameshot
+
 	Faça o ranking dos melhores mirrors para você:
 		https://wiki.archlinux.org/title/mirrors
 	
@@ -234,7 +262,6 @@ Caso você esteja com wifi a cabo, pule este passo:
 		Descomente as linhas:
 			[multilib]
 			Include = /etc/pacman.d/mirrorlist
-		Pronto :).
 
 	Instale e ative o firewall
 		sudo pacman -S ufw
@@ -265,3 +292,11 @@ Caso você esteja com wifi a cabo, pule este passo:
 		sudo pacman -S git
 
 	Remova pacotes orfãos.
+
+-----------------------------------------------------------------------
+19. Ferramentas CLI
+
+Torrent:
+	https://github.com/webtorrent/webtorrent-cli
+
+
