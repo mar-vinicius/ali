@@ -70,7 +70,7 @@ DOS:
 --- CHROOT
 1. Execute o comando : artix-chroot /mnt
 2. pacman -Sy bash bash-completion
-3. usermod --shell /bin/bash
+3. sudo chsh -s /bin/bash
 ---
 
 --- LOCALIZAÇÃO E AFINS
@@ -91,8 +91,9 @@ DOS:
 ---
 
 --- INSTALAÇÃO DE CONFIGURAÇÃO DO GRUB ASSIM COMO INTERNET
-1. Atenção aos pacotes entre !, pois segue a mesma lógica explicada antes.
-2. pacman -S grub !efibootmgr! networkmanager !networkmanager-runit! network-manager-applet dosfstools linux-headers os-prober dialog sudo mtools
+1. Atenção aos pacotes entre ! e os pacotes entre ?, pois os que estão entre ! seguem a mesma lógica explicada antes.
+2. pacman -S grub ?efibootmgr? networkmanager !networkmanager-runit! network-manager-applet dosfstools linux-headers os-prober dialog sudo mtools
+3. O efibootmgr é apenas para sistemas UEFI.
 
 UEFI:
 	1. Instale o grub: grub-install --target=x86_64-efi --efi-directory=<caminho para a pasta boot> --bootloader-id=GRUB
@@ -122,7 +123,7 @@ DOS:
 2. Instale o xorg da seguinte forma: pacman -Sy xorg
 
 3. Instalando i3wm
-	pacman -S i3-wm i3lock i3status xfce4-terminal feh rofi dunst firefox flameshot python-pywal thunar
+	pacman -S i3-wm i3lock i3status xfce4-terminal feh rofi dunst python-pywal thunar
 	
 	Instalando LY:
 		git clone https://aur.archlinux.org/ly
