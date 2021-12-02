@@ -119,6 +119,7 @@ DOS:
 1. Instale o driver gráfico e o xorg
 	amd: pacman -Sy xf86-video-amdgpu
 	intel: pacman -Sy xf86-video-intel
+	virtualbox : pacman -Sy virtualbox-guest-utils mesa
 
 2. Instale o xorg da seguinte forma: pacman -Sy xorg
 
