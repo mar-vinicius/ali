@@ -123,6 +123,10 @@ DOS:
 
 2. Instale o xorg da seguinte forma: pacman -Sy xorg
 
+2.1 Instalando Lightdm: (atenção as ! pois seguem a mesma lógica já explicada)
+	sudo pacman -S !lightdm-runit! lightdm-gtk-greeter
+
+
 3. Instalando i3wm
 	pacman -S i3-wm i3lock i3status xfce4-terminal feh rofi dunst python-pywal thunar
 	
