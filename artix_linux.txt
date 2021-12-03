@@ -1,5 +1,5 @@
 --- VERIFICAR CONEXÃO COM A INTERNET E CONFIGURAR TECLADO
-ip a
+ping www.google.com
 sudo loadkeys br-abnt2
 ---
 
@@ -11,12 +11,12 @@ sudo loadkeys br-abnt2
 
 UEFI:
 	1. Crie a partição de boot, com 512MB e mude seu tipo para "EFI System".
-	2. Crie a partição de root, defina o tamanho considerando se vai usar ou não swap.
+	2. Crie a partição de root, defina o tamanho considerando se vai usar ou não swap e se vai ou não usar home separado.
 	3. Crie um swap, se for usar, e mude seu tipo para "Linux swap".
 	4. Dê WRITE e confirme.
 
 DOS:
-	1. Crie a partição de root, defina o tamanho considerando se vai usar ou não swap.
+	1. Crie a partição de root, defina o tamanho considerando se vai usar ou não swap e se vai ou não ter uma home separada do root.
 	2. Crie a partição de swap, e mude seu tipo para "Linux swap".
 	3. Dê WRITE e confirme.
 ---
@@ -26,11 +26,11 @@ DOS:
 
 UEFI:
 	1. Formate a partição de boot em fat 32: mkfs.vfat -F32 <caminho para usa partição de boot>
-	2. Formate a partição root em ext4 ou qualquer outro FS que queira, eu vou fazer em ext4: mkfs.ext4 <caminho para sua partição root ou home>
+	2. Formate a partição root(ou home) em ext4 ou qualquer outro FS que queira, eu vou fazer em ext4: mkfs.ext4 <caminho para sua partição root ou home>
 	3. Formate a partição de swap(se tiver feito) dessa forma: mkswap <caminho da sua partição destinada ao swap>
 
 DOS:
-	1. Formate a partição root em ext4 ou qualquer outro FS que queira, eu vou fazer em ext4: mkfs.ext4 <caminho para sua partição root ou home>
+	1. Formate a partição root(também é válido para o home) em ext4 ou qualquer outro FS que queira, eu vou fazer em ext4: mkfs.ext4 <caminho para sua partição root ou home>
 	2. Formate a partição de swap(se tiver feito) dessa forma: mkswap <caminho da sua partição destinada ao swap>
 ---
 
@@ -40,13 +40,16 @@ DOS:
 UEFI:
 	1. Monte o root em /mnt: mount <caminho da partição root> /mnt
 	2. Crie uma pasta em /mnt destinada para o boot: mkdir -p /mnt/boot
-	3. Monte a partição de boot em /mnt/boot: mount <caminho da partição boot> /mnt/boot
-	4. Ative o swap se tiver feito: swapon <caminho da partição de swap>
+	3. Cria uma pasta em /mnt destinada para a home: mkdir /mnt/home
+	4. Monte a partição de boot em /mnt/boot: mount <caminho da partição boot> /mnt/boot
+	5. Monte a partição de home em /mnt/boot: mount <caminho da partição home> /mnt/home
+	6. Ative o swap se tiver feito: swapon <caminho da partição de swap>
 
 DOS:
-	1. Crie uma pasta em /mnt destinada para o boot: mkdir -p /mnt/boot
-	2. Monte a partição de boot em /mnt/boot: mount <caminho da partição boot> /mnt/boot
-	3. Ative o swap se tiver feito: swapon <caminho da partição de swap>
+	1. Monte o root em /mnt: mount <caminho da partição root> /mnt
+	2. Cria uma pasta em /mnt destinada para a home: mkdir /mnt/home
+	3. Monte a partição de home em /mnt/boot: mount <caminho da partição home> /mnt/home
+	4. Ative o swap se tiver feito: swapon <caminho da partição de swap>
 ---
 
 --- BASESTRAP
@@ -56,44 +59,39 @@ DOS:
 
 3. O "runit" pode ser substituído por openrc, s6, 66 e dinit, dependendo da iso usada.
 4. O "elogind-runit", especificamente a parte "-runit" pode ser substituída opr "-openrc", "-s6", "-66" e "-dinit"
-5. Se você usa intel, pode intel-ucode
-
+5. Se você usa intel, ponha intel-ucode
 6. Aperte enter e pode relaxar um pouco.
 ---
 
 --- FSTAB
 1. Gere o arquivo de fstab, que é basicamente o arquivo responsável por dizer ao boot system onde cada partição é montada e de que forma.
 2. fstabgen -U /mnt >> /mnt/etc/fstab
-3. Verifique se foi usando o comando : cat /mnt/etc/fstab
+3. Verifique se o fstab está feito da forma certa usando o comando : cat /mnt/etc/fstab
 ---
 
---- CHROOT
-1. Execute o comando : artix-chroot /mnt
-2. pacman -Sy bash bash-completion
-3. sudo chsh -s /bin/bash
----
+--- CHROOT, LOCALIZAÇÃO E AFINS
+0. artix-chroot /mnt
 
---- LOCALIZAÇÃO E AFINS
 1. Crie um symbolic link da sua localização em /etc/localtime: ln -sf /usr/share/zoneinfo/America/<sua cidade> /etc/localtime
 2. hwclock --systohc : sincrozinar o horário do sistema com o horário da máquina.
 3. Edite o arquivo /etc/locale.gen e descomente a linha que seja pt_BR e tenha UTF-8, salve e saia.
 4. locale-gen.
 5. Agora vamos a configuração de idioma: echo LANG=pt_BR.UTF-8 >> /etc/locale.conf
 6. Configure o nome do host da sua máquina: echo <nome da sua máquina> >> /etc/hostname
-7. Configure os hosts da sua máquina, a sua rede, da seguinte forma:
+7. Edite o arquivo /etc/hosts para configurar os hosts da sua máquina, o seu ip, da seguinte forma:
 	127.0.0.1 localhost
 	::1 localhost
 	127.0.1.1 <hostname>.localdomain <hostname>
 
 8. Configure um novo password para o root com o comando passwd.
-9. Configure seu idioma do seu teclado : echo KEYMAP=br-abnt2 >> /etc/vconsole.conf
-10. Crie um novo usuário e defina seu password : echo LANG=pt_BR.UTF-8 >> /etc/locale.conf
+9. Configure o idioma do seu teclado : echo KEYMAP=br-abnt2 >> /etc/vconsole.conf
+10. Crie um novo usuário e defina seu password : adduser -m -g users -G wheel <nome do usuário> && passwd <nome do usuário>
 ---
 
---- INSTALAÇÃO DE CONFIGURAÇÃO DO GRUB ASSIM COMO INTERNET
+--- INSTALAÇÃO DE CONFIGURAÇÃO DO GRUB
 1. Atenção aos pacotes entre ! e os pacotes entre ?, pois os que estão entre ! seguem a mesma lógica explicada antes.
 2. pacman -S grub ?efibootmgr? networkmanager !networkmanager-runit! network-manager-applet dosfstools linux-headers os-prober dialog sudo mtools
-3. O efibootmgr é apenas para sistemas UEFI.
+3. O efibootmgr é apenas para sistemas UEFI, se estiver fazendo em DOS, pode ignorar.
 
 UEFI:
 	1. Instale o grub: grub-install --target=x86_64-efi --efi-directory=<caminho para a pasta boot> --bootloader-id=GRUB
@@ -109,13 +107,15 @@ DOS:
 
 2. Para listar os serviços disponíveis, dê um ls em /etc/runit/sv/: ls -l /etc/runit/sv/
 3. Para ver os serviços que estão rodando, dê um ls em /run/runit/service/: ls -l /run/runit/service/
-4. Para habilitar um serviço, faça um symbol link entre as duas pastas citadas: ln -s /etc/runit/<serviço> /run/runit/service/<mesmo nome do serviço>
+4. Para habilitar um serviço, faça um link simbólico entre as duas pastas citadas: ln -s /etc/runit/<serviço> /run/runit/service/<mesmo nome do serviço>
 
 5. Adicione seu usuário ao sudoers da seguinte forma: echo "<nome do usuário> ALL=(ALL) ALL" >> /etc/sudoers
 6. Dê um reboot
 ---
 
 --- INSTALANDO AMBIENTE
+0. Habilite o serviço de NetworkManager no runit
+
 1. Instale o driver gráfico e o xorg
 	amd: pacman -Sy xf86-video-amdgpu
 	intel: pacman -Sy xf86-video-intel
@@ -126,19 +126,13 @@ DOS:
 2.1 Instalando Lightdm: (atenção as ! pois seguem a mesma lógica já explicada)
 	sudo pacman -S !lightdm-runit! lightdm-gtk-greeter
 
-
 3. Instalando i3wm
 	pacman -S i3-wm i3lock i3status xfce4-terminal feh rofi dunst python-pywal thunar
 
 	CONFIGURANDO XORG-XINIT:
 		pacman -S xorg-xinit
-
-		nvim .xinitrc
-		exec i3
-		:wq
-
+		echo "exec i3" >> .xinitrc
 		startx .xinitrc
-
 ---
 
 --- CONFIGURANDO i3
@@ -146,27 +140,27 @@ DOS:
 	Após os procedimentos acima, aceite gerar o arquivo de configuração do i3wm e abra um tty(cntrl + alt + F3).
 	e faça os seguintes passos:
 		nvim .config/i3/config
-		# vá no comentário onde tem-se escrito "start a terminal" e mude o i3-sensible-terminal para o terminal do seu desejo(o comando para executa-lo, no caso)
-		# mude o que está escrito abaixo do comentário "start dmenu", apenas mudando o último parâmetro passado(dmenu_run) para rofi -show drun -show-icons
-		# vá no fim do arquivo e bote as seguintes linhas para setar, respectivamente : um wallpaper, seu layout de teclado, transparência e outros efeitos e a ferramenta de captura de tela.
+		vá no comentário onde tem-se escrito "start a terminal" e mude o i3-sensible-terminal para o terminal do seu desejo(o comando para executa-lo, no caso)
+		mude o que está escrito abaixo do comentário "start dmenu", apenas mudando o último parâmetro passado(dmenu_run) para rofi -show drun -show-icons
+		vá no fim do arquivo e bote as seguintes linhas para setar, respectivamente : um wallpaper, seu layout de teclado, transparência e outros efeitos e a ferramenta de captura de tela.
 			exec_always feh --bg-scale --no-fehbg ~/wallpaper/wall.png
 			exec_always setxkbmap br
 			exec_always picom
 			exec_always flameshot
 
-		# crie no final deste mesmo arquivo um keybind para o i3lock que pode ser algo como:
+		crie no final deste mesmo arquivo um keybind para o i3lock que pode ser algo como:
 			bindsym $mod+x exec i3lock --color=191428
 	
-		# crie a pasta do i3status, copie o i3status.conf e mude seu dono.
+		crie a pasta do i3status, copie o i3status.conf e mude seu dono.
 			mkdir ~/.config/i3status
 			sudo cp /etc/i3status.conf ~/.config/i3status/i3status.conf
 			cd ~/.config/i3status/
 			sudo chown <your_username>:<your_username> i3status.conf
 
-		# mudando no bar() o i3status
-		# edite novamente o arquivo ~/.config/i3/config
-		# vá no comando que está lá (status_command i3status) e adicione ao final o comando : -c /home/<your_username>/.config/i3status/i3status.conf
-		# edite da sua forma o i3status que está na sua pasta home e seja feliz.
-		# recomendação de edição do i3status do home.
-			# comentar a linha do ipv6, wireless _first_, battery all
+		mudando no bar() o i3status
+		edite novamente o arquivo ~/.config/i3/config
+		vá no comando que está lá (status_command i3status) e adicione ao final o comando : -c /home/<your_username>/.config/i3status/i3status.conf
+		edite da sua forma o i3status que está na sua pasta home e seja feliz.
+		recomendação de edição do i3status do home.
+			comentar a linha do ipv6, wireless _first_, battery all
 ---
