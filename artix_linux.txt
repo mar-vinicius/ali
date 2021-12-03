@@ -81,8 +81,8 @@ DOS:
 5. Agora vamos a configuração de idioma: echo LANG=pt_BR.UTF-8 >> /etc/locale.conf
 6. Configure o nome do host da sua máquina: echo <nome da sua máquina> >> /etc/hostname
 7. Configure os hosts da sua máquina, a sua rede, da seguinte forma:
-	127.0.0.1 <hostname>
-	::1 <hostname>
+	127.0.0.1 localhost
+	::1 localhost
 	127.0.1.1 <hostname>.localdomain <hostname>
 
 8. Configure um novo password para o root com o comando passwd.
@@ -129,11 +129,16 @@ DOS:
 
 3. Instalando i3wm
 	pacman -S i3-wm i3lock i3status xfce4-terminal feh rofi dunst python-pywal thunar
-	
-	Instalando LY:
-		git clone https://aur.archlinux.org/ly
-		cd ly && make -si
-		<habilite este serviço>
+
+	CONFIGURANDO XORG-XINIT:
+		pacman -S xorg-xinit
+
+		nvim .xinitrc
+		exec i3
+		:wq
+
+		startx .xinitrc
+
 ---
 
 --- CONFIGURANDO i3
